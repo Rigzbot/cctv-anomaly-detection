@@ -1,33 +1,20 @@
 import cv2
 import os
-import moviepy.video.io.ImageSequenceClip
+from argparse import ArgumentParser
+import glob
 
-base_path = "D:/Machine_Learning/Anomaly_Detection_Research/UCSD_Anomaly_Dataset.v1p2/UCSDped2/Test/Test001/"
-new_path = "D:/Machine_Learning/Anomaly_Detection_Research/UCSD_Anomaly_Dataset.v1p2/UCSDped2/Test/Test001_jpg/"
 frames_path = "D:/Machine_Learning/Anomaly_Detection_Research/Implementation/frames/"
 
-
-def convert_tif_to_jpg():
-    for infile in os.listdir(base_path):
-        if infile[-3:] == 'tif':
-            read = cv2.imread(base_path + infile)
-            outfile = infile.split('.')[0] + '.jpg'
-            cv2.imwrite(new_path + outfile, read, [int(cv2.IMWRITE_JPEG_QUALITY), 200])
+"""
+    flow: data set frames -> data set video -> optical flow video -> optical flow b&w frames -> optical flow b&w video
+"""
 
 
-def create_video(folder_path, fps=30):
-    image_files = [os.path.join(folder_path, img)
-                   for img in os.listdir(folder_path)
-                   if img.endswith(".jpg")]
-    clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
-    if folder_path == frames_path:
-        clip.write_videofile('my_video_gray.mp4')
-    else:
-        clip.write_videofile('my_video.mp4')
+def create_video_opencv(image_folder, video_name, dataset_video=None):
+    if dataset_video:
+        os.remove(dataset_video)
 
-
-def create_video_opencv(image_folder, video_name):
-    images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
+    images = [img for img in os.listdir(image_folder) if img.endswith(".tif")]
     frame = cv2.imread(os.path.join(image_folder, images[0]))
     height, width, layers = frame.shape
 
@@ -44,15 +31,15 @@ def format_name(i, frame_count):
     return str(i).zfill(len(str(frame_count)))
 
 
-def colour_to_black():
-    source = cv2.VideoCapture('my_video.avi')
+def colour_to_black(video_name):
+    source = cv2.VideoCapture(video_name)
 
     frame_count = int(source.get(cv2.CAP_PROP_FRAME_COUNT))
     for i in range(frame_count):
         ret, img = source.read()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         file_name = format_name(i + 1, frame_count)
-        cv2.imwrite(frames_path + f'{file_name}.jpg', gray)
+        cv2.imwrite(frames_path + f'{file_name}.tif', gray)
 
         key = cv2.waitKey(1)
         if key == ord("q"):
@@ -62,13 +49,42 @@ def colour_to_black():
     source.release()
 
 
-def main():
-    if len(os.listdir(new_path)) == 0:
-        convert_tif_to_jpg()
+def inference(args):
+    if len(os.listdir(frames_path)) != 0:
+        files = glob.glob('frames/.*')
+        for f in files:
+            os.remove(f)
 
-    create_video_opencv(new_path, video_name='my_video.avi')
-    colour_to_black()
-    create_video_opencv(frames_path, 'my_video_gray.avi')
+    vid_name = args.video
+
+    out_dir = args.output_dir
+    if out_dir:
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+
+    in_dir = args.input_dir
+    if in_dir:
+        create_video_opencv(in_dir, video_name=vid_name)  # creates video from dataset frames
+
+    # TODO(integrate optical flow implementation)
+    colour_to_black(video_name=vid_name)  # creates b&w frames from optical flow video
+    create_video_opencv(frames_path, video_name=f'{out_dir}/gray_{vid_name}',
+                        dataset_video=f'{vid_name}')  # creates b&w video from optical frames
+
+
+def main():
+    # TODO(reduce flickering)
+
+    # TODO(read paper 1, GANS, pytorch course)
+
+    parser = ArgumentParser()
+    parser.add_argument("--input_dir", type=str, help="enter directory of frames")
+    parser.add_argument("--output_dir", type=str, help="enter directory of output video")
+    parser.add_argument("--video", type=str, default="my_video.avi", help="enter video name")
+
+    args = parser.parse_args()
+    inference(args)
+
     print("Complete")
 
 
