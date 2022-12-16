@@ -6,11 +6,12 @@ import glob
 frames_path = "D:/Machine_Learning/Anomaly_Detection_Research/Implementation/frames/"
 
 """
-    flow: data set frames -> data set video -> optical flow video -> optical flow b&w frames -> optical flow b&w video
+    old flow: data set frames -> data set video -> optical flow video -> optical flow b&w frames -> optical flow b&w video
+    new flow: data set frames -> data set video -> optical flow video
 """
 
 
-def create_video_opencv(image_folder, video_name, dataset_video=None):
+def create_video_opencv(image_folder, video_name, fps, dataset_video=None):
     if dataset_video:
         os.remove(dataset_video)
 
@@ -18,7 +19,7 @@ def create_video_opencv(image_folder, video_name, dataset_video=None):
     frame = cv2.imread(os.path.join(image_folder, images[0]))
     height, width, layers = frame.shape
 
-    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 30, (width, height))
+    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), fps, (width, height))
 
     for image in images:
         video.write(cv2.imread(os.path.join(image_folder, image)))
@@ -56,6 +57,7 @@ def inference(args):
             os.remove(f)
 
     vid_name = args.video
+    fps = args.fps
 
     out_dir = args.output_dir
     if out_dir:
@@ -64,12 +66,12 @@ def inference(args):
 
     in_dir = args.input_dir
     if in_dir:
-        create_video_opencv(in_dir, video_name=vid_name)  # creates video from dataset frames
+        create_video_opencv(in_dir, video_name=vid_name, fps=fps)  # creates video from dataset frames
 
     # TODO(integrate optical flow implementation)
     colour_to_black(video_name=vid_name)  # creates b&w frames from optical flow video
     create_video_opencv(frames_path, video_name=f'{out_dir}/gray_{vid_name}',
-                        dataset_video=f'{vid_name}')  # creates b&w video from optical frames
+                        dataset_video=f'{vid_name}', fps=fps)  # creates b&w video from optical frames
 
 
 def main():
@@ -81,6 +83,7 @@ def main():
     parser.add_argument("--input_dir", type=str, help="enter directory of frames")
     parser.add_argument("--output_dir", type=str, help="enter directory of output video")
     parser.add_argument("--video", type=str, default="my_video.avi", help="enter video name")
+    parser.add_argument("--fps", type=int, help="enter fps of video", default=30)
 
     args = parser.parse_args()
     inference(args)
