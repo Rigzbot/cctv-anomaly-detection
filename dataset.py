@@ -39,12 +39,12 @@ class AnomalyDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.Train_DataSet)
+        return len(self.csv_file)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        current_sample = self.Train_DataSet.iloc[idx, 0]
+        current_sample = self.csv_file.iloc[idx, 0]
         label = self.csv_file.iloc[idx, 1]
         label_path = os.path.join(self.root_dir, label)
         label = io.imread(label_path)
