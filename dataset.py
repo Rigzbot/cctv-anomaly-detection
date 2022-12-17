@@ -17,7 +17,7 @@ def create_csv(number_of_train_folders = 34, number_of_frames=4):
     train_dataset = pd.DataFrame({'frames': [], 'label': []})
     for j in range(number_of_train_folders):
         lst = [
-            f"Train{str(j+1).zfill(3)}/{str(i+1).zfill(3)}.tif" for i in range(200)]
+            f"Train{str(j+1).zfill(3)}/frame_{str(i+1).zfill(3)}.jpg" for i in range(200)]
         items = [(lst[i:i+number_of_frames], lst[i+number_of_frames]) for i in range(len(lst)-(number_of_frames+1))]
         x = pd.DataFrame(items, columns=["frames", "label"])
         train_dataset = train_dataset.append(x, ignore_index=True)
@@ -77,4 +77,5 @@ if __name__ == "__main__":
         plt.axis('off')
         plt.title(f"frame_{i + 1}")
         plt.imshow(x[0, i, :, :], cmap="gray")
+    print("example.png saved as output temporal frames")
     plt.savefig('example', dpi=200)
