@@ -1,4 +1,4 @@
-from load_swin_unet_model import SwinUnet
+from generator.load_swin_unet_model import SwinUnet
 import torch
 
 if __name__ == "__main__":

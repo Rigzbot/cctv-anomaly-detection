@@ -3,7 +3,6 @@ import config
 from torchvision.utils import save_image
 import matplotlib.pyplot as plt
 
-
 def save_some_examples(gen, val_loader, epoch, folder):
     x, y = next(iter(val_loader))
     x, y = x.to(config.DEVICE), y.to(config.DEVICE)

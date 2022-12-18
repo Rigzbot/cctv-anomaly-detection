@@ -3,9 +3,9 @@ from utils import save_checkpoint, load_checkpoint, save_some_examples
 import torch.nn as nn
 import torch.optim as optim
 import config
-from dataset import AnomalyDataset
-from generator_model import Generator
-from discriminator_model import Discriminator
+from dataset import AnomalyDataset, create_csv
+from generator.load_swin_unet_model import SwinUnet
+from discriminator import Discriminator
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -17,7 +17,9 @@ def train_fn(
 ):
     loop = tqdm(loader, leave=True)
 
-    for idx, (x, y) in enumerate(loop):
+    for idx, (x, y, _) in enumerate(loop):
+        print(x.shape)
+        print(y.shape)
         x = x.to(config.DEVICE)
         y = y.to(config.DEVICE)
 
@@ -65,7 +67,7 @@ def main():
     # train function (load data(x, y), Train Discriminator, Train Generator, update loss, gradient step)
     # training loop ( epoch loop, save model)
     disc = Discriminator(in_channels=3).to(config.DEVICE)
-    gen = Generator(in_channels=3, features=64).to(config.DEVICE)
+    gen = SwinUnet(config=None).to(config.DEVICE)
     opt_disc = optim.Adam(
         disc.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999),)
     opt_gen = optim.Adam(
@@ -80,8 +82,8 @@ def main():
         load_checkpoint(
             config.CHECKPOINT_DISC, disc, opt_disc, config.LEARNING_RATE,
         )
-
-    train_dataset = AnomalyDataset(root_dir=config.TRAIN_DIR)
+    train_dataframe = create_csv()
+    train_dataset = AnomalyDataset(train_dataframe, root_dir=config.TRAIN_DIR)
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.BATCH_SIZE,
@@ -90,7 +92,7 @@ def main():
     )
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
-    val_dataset = AnomalyDataset(root_dir=config.VAL_DIR)
+    val_dataset = AnomalyDataset(train_dataframe, root_dir=config.VAL_DIR)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
 
     for epoch in range(config.NUM_EPOCHS):
