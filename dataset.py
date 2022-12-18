@@ -3,6 +3,8 @@ import torch
 import pandas as pd
 from skimage import io, transform
 import numpy as np
+import config
+from einops import rearrange
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 import matplotlib.pyplot as plt
@@ -53,25 +55,30 @@ class AnomalyDataset(Dataset):
           img_name = os.path.join(self.root_dir, item)
           image = io.imread(img_name)
           image = transform.resize(image, (256, 256))
+          image = rearrange(image, 'h w c -> c h w')
           images.append(image)
 
         label = transform.resize(label, (256, 256))
+        label = rearrange(label, 'h w c -> c h w')
         x = np.stack(images[:4])
 
         return x, label, images
 
 if __name__ == "__main__":
-    root = "/TrainOpticalFlow"
+    root = "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
     data_transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = create_csv()
     anomaly_dataset = AnomalyDataset(train_dataset, root, None)
-    data = DataLoader(anomaly_dataset, batch_size=16, shuffle=True)
+    data = DataLoader(anomaly_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
 
     plt.rcParams["figure.figsize"] = [12, 12]
     plt.rcParams["figure.autolayout"] = True
 
     x, y, desc = next(iter(data))
-
+    x = rearrange(x, 'b t c h w -> b t h w c')
+    y = rearrange(y, 'b c h w -> b h w c')
+    print(x.shape)
+    print(y.shape)
     for i in range(4):
         plt.subplot(1, 4, i + 1)
         plt.axis('off')
