@@ -1,7 +1,7 @@
 import copy
 import torch
 import torch.nn as nn
-from swin_transformer_model import SwinTransformerSys
+from generator.swin_transformer_model import SwinTransformerSys
 
 # config = MODEL:
 #   TYPE: swin

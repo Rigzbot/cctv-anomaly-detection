@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
-from window_attention import WindowAttention
-from window_partition import Mlp, window_partition, window_reverse
+from generator.window_attention import WindowAttention
+from generator.window_partition import Mlp, window_partition, window_reverse
 
 
 class SwinTransformerBlock(nn.Module):

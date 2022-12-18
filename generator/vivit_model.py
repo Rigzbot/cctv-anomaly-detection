@@ -2,9 +2,9 @@ import torch
 from torch import nn, einsum
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
-from patch_expander_layer import PatchExpand
-from basic_upsampling_layer import BasicLayer_up
-from vivit_util import PreNorm, Attention, FeedForward
+from generator.patch_expander_layer import PatchExpand
+from generator.basic_upsampling_layer import BasicLayer_up
+from generator.vivit_util import PreNorm, Attention, FeedForward
 
 class Transformer(nn.Module):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout=0.):

@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from swin_transformer_block import SwinTransformerBlock
+from generator.swin_transformer_block import SwinTransformerBlock
 
 
 class BasicLayer(nn.Module):

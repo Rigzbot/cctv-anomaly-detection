@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 from einops import rearrange
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
-from patch_embedding_layer import PatchEmbed
-from patch_expander_layer import PatchExpand, FinalPatchExpand_X4
-from vivit_model import ViViT
-from basic_upsampling_layer import BasicLayer_up
-from swin_transformer_block import PatchMerging
-from swin_transformer_layer import BasicLayer
+from generator.patch_embedding_layer import PatchEmbed
+from generator.patch_expander_layer import PatchExpand, FinalPatchExpand_X4
+from generator.vivit_model import ViViT
+from generator.basic_upsampling_layer import BasicLayer_up
+from generator.swin_transformer_block import PatchMerging
+from generator.swin_transformer_layer import BasicLayer
 
 class SwinTransformerSys(nn.Module):
     r""" Swin Transformer
