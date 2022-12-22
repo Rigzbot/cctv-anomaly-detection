@@ -64,25 +64,26 @@ class AnomalyDataset(Dataset):
 
         return x, label, images
 
-if __name__ == "__main__":
-    root = "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
-    data_transform = transforms.Compose([transforms.ToTensor()])
-    train_dataset = create_csv()
-    anomaly_dataset = AnomalyDataset(train_dataset, root, None)
-    data = DataLoader(anomaly_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+# if __name__ == "__main__":
+#     root = "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
+#     root_local_storage = "D:/Machine_Learning/Anomaly_Detection_Research/Implementation/TrainOpticalFlow"
+#     data_transform = transforms.Compose([transforms.ToTensor()])
+#     train_dataset = create_csv()
+#     anomaly_dataset = AnomalyDataset(train_dataset, root, None)
+#     data = DataLoader(anomaly_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
 
-    plt.rcParams["figure.figsize"] = [12, 12]
-    plt.rcParams["figure.autolayout"] = True
+#     plt.rcParams["figure.figsize"] = [12, 12]
+#     plt.rcParams["figure.autolayout"] = True
 
-    x, y, desc = next(iter(data))
-    x = rearrange(x, 'b t c h w -> b t h w c')
-    y = rearrange(y, 'b c h w -> b h w c')
-    print(x.shape)
-    print(y.shape)
-    for i in range(4):
-        plt.subplot(1, 4, i + 1)
-        plt.axis('off')
-        plt.title(f"frame_{i + 1}")
-        plt.imshow(x[0, i, :, :], cmap="gray")
-    print("example.png saved as output temporal frames")
-    plt.savefig('example', dpi=200)
+#     x, y, desc = next(iter(data))
+#     x = rearrange(x, 'b t c h w -> b t h w c')
+#     y = rearrange(y, 'b c h w -> b h w c')
+#     print(x.shape)
+#     print(y.shape)
+#     for i in range(4):
+#         plt.subplot(1, 4, i + 1)
+#         plt.axis('off')
+#         plt.title(f"frame_{i + 1}")
+#         plt.imshow(x[0, i, :, :], cmap="gray")
+#     print("example.png saved as output temporal frames")
+#     plt.savefig('example', dpi=200)

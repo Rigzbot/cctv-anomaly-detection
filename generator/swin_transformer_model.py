@@ -43,10 +43,10 @@ class SwinTransformerSys(nn.Module):
                  use_checkpoint=False, final_upsample="expand_first", **kwargs):
         super().__init__()
 
-        print(
-            "SwinTransformerSys expand initial----depths:{};depths_decoder:{};drop_path_rate:{};num_classes:{}".format(
-                depths,
-                depths_decoder, drop_path_rate, num_classes))
+        # print(
+        #     "SwinTransformerSys expand initial----depths:{};depths_decoder:{};drop_path_rate:{};num_classes:{}".format(
+        #         depths,
+        #         depths_decoder, drop_path_rate, num_classes))
 
         self.num_classes = num_classes
         self.num_layers = len(depths)
@@ -131,7 +131,7 @@ class SwinTransformerSys(nn.Module):
         self.norm_up = norm_layer(self.embed_dim)
 
         if self.final_upsample == "expand_first":
-            print("---final upsample expand_first---")
+            # print("---final upsample expand_first---")
             self.up = FinalPatchExpand_X4(input_resolution=(img_size // patch_size, img_size // patch_size),
                                           dim_scale=4, dim=embed_dim)
             self.output = nn.Conv2d(in_channels=embed_dim, out_channels=self.num_classes, kernel_size=1, bias=False)
@@ -223,12 +223,12 @@ class SwinTransformerSys(nn.Module):
         return x, skip_connection
 
     def forward(self, x):
-        print(x.shape, 'Input Shape: ( batch_size, no_of_frames, no_of_channels, height_of_image, width_of_image )')
+        # print(x.shape, 'Input Shape: ( batch_size, no_of_frames, no_of_channels, height_of_image, width_of_image )')
         x, x_downsample = self.temporal_copies(x)
         x = self.bottleneck_model(x)
         x = self.forward_up_features(x, x_downsample)
         x = self.up_x4(x)
-        print(x.shape, 'Output Shape: ( batch_size, no_of_channels, height_of_image, width_of_image )')
+        # print(x.shape, 'Output Shape: ( batch_size, no_of_channels, height_of_image, width_of_image )')
         return x
 
     def flops(self):
