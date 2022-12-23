@@ -26,6 +26,7 @@ class PatchExpand(nn.Module):
 
         return x
 
+
 class FinalPatchExpand_X4(nn.Module):
     def __init__(self, input_resolution, dim, dim_scale=4, norm_layer=nn.LayerNorm):
         super().__init__()

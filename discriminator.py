@@ -57,13 +57,13 @@ class Discriminator(nn.Module):
 
 
 def test():
-    x = torch.randn((4, 3, 256, 256))
-    y = torch.randn((4, 3, 256, 256))
-    model = Discriminator(in_channels=3)
+    x = torch.randn((4, 3, 256, 256)).cuda()
+    y = torch.randn((4, 3, 256, 256)).cuda()
+    model = Discriminator(in_channels=3).cuda()
     summary(model, input_size=(3, 256, 256))
     preds = model(x)
     print(preds.shape)
 
 
-if __name__ == "__main__":
-    test()
+# if __name__ == "__main__":
+#     test()

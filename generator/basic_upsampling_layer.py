@@ -3,6 +3,7 @@ import torch.utils.checkpoint as checkpoint
 from generator.patch_expander_layer import PatchExpand
 from generator.swin_transformer_block import SwinTransformerBlock
 
+
 class BasicLayer_up(nn.Module):
     """ A basic Swin Transformer layer for one stage.
 

@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import config
 from dataset import AnomalyDataset, create_csv
+from generator.swin_transformer_model import SwinTransformerSys
 from generator.load_swin_unet_model import SwinUnet
 from discriminator import Discriminator
 from torch.utils.data import DataLoader
@@ -18,14 +19,15 @@ def train_fn(
     loop = tqdm(loader, leave=True)
 
     for idx, (x, y, _) in enumerate(loop):
-        # print(x.shape)
-        # print(y.shape)
-        x = x.float().to(config.DEVICE)
+        a = x[:, 0, :, :, :].float().to(config.DEVICE)
+        b = x[:, 0, :, :, :].float().to(config.DEVICE)
+        c = x[:, 0, :, :, :].float().to(config.DEVICE)
+        d = x[:, 0, :, :, :].float().to(config.DEVICE)
         y = y.float().to(config.DEVICE)
 
         # Train Discriminator
         with torch.cuda.amp.autocast():
-            y_pred = gen(x)
+            y_pred = gen(a, b, c, d)
             D_real = disc(y)
             D_real_loss = bce(D_real, torch.ones_like(D_real))
             D_fake = disc(y_pred.detach())
@@ -67,7 +69,7 @@ def main():
     # train function (load data(x, y), Train Discriminator, Train Generator, update loss, gradient step)
     # training loop ( epoch loop, save model)
     disc = Discriminator(in_channels=3).to(config.DEVICE)
-    gen = SwinUnet(config=None).to(config.DEVICE)
+    gen = SwinTransformerSys().to(config.DEVICE)
     opt_disc = optim.Adam(
         disc.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999),)
     opt_gen = optim.Adam(

@@ -1,10 +1,12 @@
 import torch
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TRAIN_DIR = "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
-VAL_DIR = "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
+# "/content/drive/MyDrive/AnomalyResearch/TrainOpticalFlow"
+
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+TRAIN_DIR = "D:/Machine_Learning/Anomaly_Detection_Research/Implementation/TrainOpticalFlow"
+VAL_DIR = "D:/Machine_Learning/Anomaly_Detection_Research/Implementation/TrainOpticalFlow"
 LEARNING_RATE = 2e-4
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 NUM_WORKERS = 2
 IMAGE_SIZE = 256
 CHANNELS_IMG = 3

@@ -57,6 +57,9 @@ class ViViT(nn.Module):
             nn.Linear(dim, num_classes)
         )
 
+        self.expand = PatchExpand((4, 4), 768 * 2, dim_scale=2)
+        self.upsample = BasicLayer_up(768 * 2, (4, 4), 2, 2, 2, upsample=self.expand)
+
     # def forward(self, x):
     #     print(x.shape, 'original shape in forward block')
     #     x = self.to_patch_embedding(x)
@@ -106,21 +109,21 @@ class ViViT(nn.Module):
         # print(x.shape, 'before spatial transformer')
         x = self.space_transformer(x)
         # print(x.shape, 'after spatial transformer')
-        expand = PatchExpand((4, 4), 768 * 2, dim_scale=2)
-        upsample = BasicLayer_up(768 * 2, (4, 4), 2, 2, 2, upsample=expand)
-        x = upsample(x)
+        # expand = PatchExpand((4, 4), 768 * 2, dim_scale=2)
+        # upsample = BasicLayer_up(768 * 2, (4, 4), 2, 2, 2, upsample=expand)
+        x = self.upsample(x)
         # print(x.shape, "final shape before upsample")
         return x
 
 
-if __name__ == "__main__":
-    n_frames = 4
-    img = torch.ones([16, n_frames, 768, 8, 8])
-
-    model = ViViT(64, 2, 2, n_frames, dim=768 * 2, in_channels=768)
-    out = model(img)
-    total_params = sum(param.numel() for param in model.parameters())
-    print(total_params / 1e6)
-    print(out.shape)
+# if __name__ == "__main__":
+#     n_frames = 4
+#     img = torch.ones([16, n_frames, 768, 8, 8])
+#
+#     model = ViViT(64, 2, 2, n_frames, dim=768 * 2, in_channels=768)
+#     out = model(img)
+#     total_params = sum(param.numel() for param in model.parameters())
+#     print(total_params / 1e6)
+#     print(out.shape)
 
     # print("Shape of out :", out.shape)      # [B, num_classes]

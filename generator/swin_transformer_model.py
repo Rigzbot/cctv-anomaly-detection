@@ -130,6 +130,11 @@ class SwinTransformerSys(nn.Module):
         self.norm = norm_layer(self.num_features)
         self.norm_up = norm_layer(self.embed_dim)
 
+        self.l1 = nn.Linear( 384, 384//4) # 384 768 1536 3072
+        self.l2 = nn.Linear( 768, 768//4)
+        self.l3 = nn.Linear( 1536, 1536//4)
+        self.l4 = nn.Linear( 3072, 3072//4)
+
         if self.final_upsample == "expand_first":
             # print("---final upsample expand_first---")
             self.up = FinalPatchExpand_X4(input_resolution=(img_size // patch_size, img_size // patch_size),
@@ -197,12 +202,12 @@ class SwinTransformerSys(nn.Module):
 
         return x
 
-    def temporal_copies(self, x):
-        a, a_downsample = self.forward_features(x[:, 0, :, :, :])
+    def temporal_copies(self, x, y, z, k):
+        a, a_downsample = self.forward_features(x)
         with torch.no_grad():
-            p, p_downsample = self.forward_features(x[:, 1, :, :, :])
-            q, q_downsample = self.forward_features(x[:, 2, :, :, :])
-            r, r_downsample = self.forward_features(x[:, 3, :, :, :])
+            p, p_downsample = self.forward_features(y)
+            q, q_downsample = self.forward_features(z)
+            r, r_downsample = self.forward_features(k)
 
         x = torch.stack((a, p, q, r), axis=0)
         temporal_downsample = a_downsample + p_downsample + q_downsample + r_downsample
@@ -216,15 +221,19 @@ class SwinTransformerSys(nn.Module):
         x = x.permute(1, 0, 3, 2).contiguous()
         x = rearrange(x, 'b t c (h w) -> b t c h w', h=8, w=8)
 
-        for i in range(len(skip_connection)):
-            reduce_dim = nn.Linear(skip_connection[i].shape[-1], skip_connection[i].shape[-1] // 4)
-            skip_connection[i] = reduce_dim(skip_connection[i])
+        # for i in range(len(skip_connection)):
+        #     reduce_dim = nn.Linear(skip_connection[i].shape[-1], skip_connection[i].shape[-1] // 4)
+        #     skip_connection[i] = reduce_dim(skip_connection[i])
+        skip_connection[0] = self.l1(skip_connection[0])
+        skip_connection[1] = self.l2(skip_connection[1])
+        skip_connection[2] = self.l3(skip_connection[2])
+        skip_connection[3] = self.l4(skip_connection[3])
 
         return x, skip_connection
 
-    def forward(self, x):
+    def forward(self, x, y, z, k):
         # print(x.shape, 'Input Shape: ( batch_size, no_of_frames, no_of_channels, height_of_image, width_of_image )')
-        x, x_downsample = self.temporal_copies(x)
+        x, x_downsample = self.temporal_copies(x, y, z, k)
         x = self.bottleneck_model(x)
         x = self.forward_up_features(x, x_downsample)
         x = self.up_x4(x)

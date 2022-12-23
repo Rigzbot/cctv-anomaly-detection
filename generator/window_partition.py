@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class Mlp(nn.Module):  # MLP layer for inner feature extraction
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
         super().__init__()

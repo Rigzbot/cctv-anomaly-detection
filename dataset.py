@@ -15,6 +15,7 @@ warnings.filterwarnings("ignore")
 
 plt.ion()   # interactive mode
 
+
 def create_csv(number_of_train_folders = 34, number_of_frames=4):
     train_dataset = pd.DataFrame({'frames': [], 'label': []})
     for j in range(number_of_train_folders):
@@ -24,6 +25,7 @@ def create_csv(number_of_train_folders = 34, number_of_frames=4):
         x = pd.DataFrame(items, columns=["frames", "label"])
         train_dataset = train_dataset.append(x, ignore_index=True)
     return train_dataset
+
 
 class AnomalyDataset(Dataset):
     """Face Landmarks dataset."""
